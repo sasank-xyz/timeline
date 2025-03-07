@@ -23,7 +23,7 @@ A beautiful, interactive timeline application built with React and TypeScript th
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/timeline.git
+   git clone https://github.com/sasank-xyz/timeline.git
    cd timeline
    ```
 
@@ -32,22 +32,28 @@ A beautiful, interactive timeline application built with React and TypeScript th
    npm install
    ```
 
-3. Set up your API key:
-   - Sign up for an account at [API Ninjas](https://api-ninjas.com/)
-   - Once registered, get your API key from your account dashboard
-   - Create a `.env` file in the root directory of the project
-   - Add your API key to the `.env` file:
-     ```
-     VITE_API_NINJAS_KEY=your_api_key_here
-     ```
-   - Replace `your_api_key_here` with your actual API key from API Ninjas
+3. Set up your environment:
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   ```
 
-4. Start the development server:
+4. Configure your API key:
+   - Sign up for a free account at [API Ninjas](https://api-ninjas.com/)
+   - Navigate to your [API Ninjas Dashboard](https://api-ninjas.com/profile)
+   - Copy your API key
+   - Open the `.env` file in your editor
+   - Replace `your_api_key_here` with your actual API key:
+     ```env
+     VITE_API_NINJAS_KEY=your_actual_api_key_here
+     ```
+
+5. Start the development server:
    ```bash
    npm run dev
    ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+6. Open your browser and navigate to `http://localhost:5173`
 
 ### API Key Security
 
@@ -55,6 +61,7 @@ A beautiful, interactive timeline application built with React and TypeScript th
 - Never commit your `.env` file to version control
 - Keep your API key private and secure
 - The `.env` file is already included in `.gitignore` to prevent accidental commits
+- If you need to share your project, only share the `.env.example` template
 
 ## Usage
 
