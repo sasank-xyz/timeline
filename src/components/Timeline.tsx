@@ -190,6 +190,7 @@ const Timeline = () => {
       <div className="timeline-year-item selected" onClick={handleBackClick}>
         <div className="timeline-year">{selectedYear}</div>
       </div>
+      <div className="timeline-mask"></div>
       <div className="timeline-events-container">
         {events.map((event, index) => (
           <div 
