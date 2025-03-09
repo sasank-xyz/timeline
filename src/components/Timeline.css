@@ -143,52 +143,161 @@
 }
 
 .timeline-dot {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   background-color: #8b5cf6;
   border-radius: 50%;
   position: absolute;
   left: 50%;
+  top: -8px;
   transform: translateX(-50%);
+  z-index: 3;
+  opacity: 1;
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-year-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
   z-index: 2;
-  transition: all 0.3s ease-out;
+  margin-top: 120px;
+  cursor: pointer;
+  height: 120px;
+  opacity: 1;
+  will-change: transform, opacity;
+  padding-top: 8px;
 }
 
-.timeline-description {
-  color: #9ca3af;
-  font-size: 1rem;
-  line-height: 1.5;
+.timeline-year-item .timeline-year {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #c4b5fd;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  position: relative;
+  z-index: 2;
+  padding: 0 20px;
+  margin-top: 24px;
+  background-color: #111827;
+  will-change: transform, font-size;
+}
+
+/* Override the dot styles for the events view */
+.timeline-events-container .timeline-dot {
+  width: 12px;
+  height: 12px;
+  top: 30px;
+  transform: translateX(-50%);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.timeline-year-item.animating .timeline-dot {
+  opacity: 1;
+  transform: translateX(-50%);
+  transition: none;
+  top: -8px;
+}
+
+.timeline-year-item.animating-to-top .timeline-dot {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.8);
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-year-item:hover .timeline-dot {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.timeline-year-item.animating {
+  position: fixed;
   margin: 0;
+  width: 100%;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1600;
+  opacity: 1;
+  padding: 20px 0;
+  background-color: #111827;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  transition: none;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-.timeline-description:not(:last-child) {
-  margin-bottom: 16px;
+.timeline-year-item.animating-to-top {
+  transform: translate3d(0, calc(20px - var(--initial-top)), 0);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.timeline-event-divider {
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(139, 92, 246, 0.2),
-    transparent
-  );
-  margin: 16px 0;
+.timeline-year-item.animating-to-top .timeline-year {
+  font-size: 3rem;
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Remove connecting lines */
-.timeline-content::before {
-  display: none;
+.timeline-year-item.selected {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1600;
+  opacity: 1;
+  padding: 20px 0;
+  background-color: #111827;
+  transform: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
 }
 
-/* Remove the right side content line */
-.timeline-item:nth-child(even) .timeline-content::before {
-  display: none;
+.timeline-year-item.selected:hover {
+  transform: scale(1.05);
 }
 
-/* Remove the left side content line */
-.timeline-item:nth-child(odd) .timeline-content::before {
-  display: none;
+.timeline-year-item.selected .timeline-year {
+  font-size: 3rem;
+  color: #c4b5fd;
+  padding: 0 20px;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.timeline-year-item.selected:hover .timeline-year {
+  color: #a78bfa;
+  text-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.timeline-year-item.selected .timeline-year::after {
+  content: '↑';
+  position: absolute;
+  top: 50%;
+  left: -30px;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-year-item.selected:hover .timeline-year::after {
+  opacity: 1;
+  left: -40px;
+}
+
+.timeline-years.transitioning .timeline-year-item:not(.animating):not(.animating-to-top) {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
 .timeline-events-container {
@@ -197,62 +306,17 @@
   position: relative;
   z-index: 2;
   opacity: 0;
-  animation: fadeInTimeline 0.4s ease-out forwards;
-  animation-delay: 0.4s;
+  animation: fadeInTimeline 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.8s;
   min-height: 100vh;
   overflow-y: auto;
   will-change: opacity, transform;
-}
-
-/* Create a mask that fades out timeline items */
-.timeline-mask {
-  content: '';
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 300px;
-  background: linear-gradient(
-    to bottom,
-    #111827 0%,
-    #111827 80px,
-    rgba(17, 24, 39, 0.95) 120px,
-    rgba(17, 24, 39, 0.8) 160px,
-    rgba(17, 24, 39, 0.6) 200px,
-    rgba(17, 24, 39, 0.3) 240px,
-    rgba(17, 24, 39, 0) 300px
-  );
-  z-index: 1500;
   pointer-events: none;
+  backface-visibility: hidden;
 }
 
-/* Timeline line */
-.timeline-events-container::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  background-color: rgba(139, 92, 246, 0.2);
-  top: 150px;
-  bottom: 0;
-  z-index: 1;
-  opacity: 0;
-  animation: fadeIn 0.3s ease-out forwards;
-  animation-delay: 0.4s;
-}
-
-/* Adjust first item spacing */
-.timeline-item:first-child {
-  margin-top: 180px;
-}
-
-.timeline-loading-container {
-  display: none;
-}
-
-.timeline-loading-content {
-  display: none;
+.timeline-events-container.visible {
+  pointer-events: all;
 }
 
 .timeline-years {
@@ -306,19 +370,6 @@
   transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.timeline-year-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-  margin-top: 120px;
-  cursor: pointer;
-  height: 120px;
-  opacity: 1;
-  will-change: transform, opacity;
-}
-
 .timeline-year-item:first-child {
   margin-top: 0;
 }
@@ -344,42 +395,10 @@
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.timeline-year-item .timeline-year {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #c4b5fd;
-  text-align: center;
-  text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-  position: relative;
-  z-index: 2;
-  padding: 0 20px;
-  margin-top: 8px;
-  padding-top: 8px;
-  background-color: #111827;
-  will-change: transform, font-size;
-}
-
 .timeline-year-item:hover .timeline-year {
   color: #a78bfa;
   text-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
   transform: scale(1.1);
-}
-
-.timeline-year-item .timeline-dot {
-  width: 16px;
-  height: 16px;
-  background-color: #8b5cf6;
-  border-radius: 50%;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  z-index: 3;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.timeline-year-item:hover .timeline-dot {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
 }
 
 /* Override the dot styles for the events view */
@@ -422,7 +441,7 @@
 
 /* Adjust spacing for first item to be below the fade */
 .timeline-item:first-child {
-  margin-top: 180px;
+  margin-top: 120px;
 }
 
 /* Ensure content stays below the fade */
@@ -692,4 +711,36 @@ body {
 
 .timeline-events-container.visible {
   pointer-events: all;
+}
+
+/* Remove the timeline-mask class entirely */
+.timeline-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 240px;
+  background: linear-gradient(
+    to bottom,
+    #111827 0%,
+    #111827 60px,
+    rgba(17, 24, 39, 0.95) 90px,
+    rgba(17, 24, 39, 0.9) 120px,
+    rgba(17, 24, 39, 0.8) 150px,
+    rgba(17, 24, 39, 0.6) 180px,
+    rgba(17, 24, 39, 0.3) 210px,
+    rgba(17, 24, 39, 0) 240px
+  );
+  z-index: 1500;
+  pointer-events: none;
+}
+
+/* Ensure the selected year text stays on top */
+.timeline-year-item.selected {
+  z-index: 1600;
+}
+
+/* Adjust spacing for first item to account for taller mask */
+.timeline-item:first-child {
+  margin-top: 240px;
 } 
