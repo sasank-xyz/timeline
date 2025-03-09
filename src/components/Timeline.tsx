@@ -23,6 +23,7 @@ const Timeline = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingComplete, setLoadingComplete] = useState(false);
+  const [animationStarted, setAnimationStarted] = useState(false);
 
   // Generate years from 1800 to 2024
   const years = Array.from({ length: 225 }, (_, i) => 1800 + i);
@@ -71,24 +72,11 @@ const Timeline = () => {
     return Math.max(daysBetween * 15, 80);
   };
 
-  const handleYearClick = useCallback((year: number) => {
-    setSelectedYear(year);
-    setEvents([]);
-    setLoading(true);
-    setError(null);
-    setLoadingComplete(false);
-  }, []);
-
-  const handleBackClick = useCallback(() => {
-    setSelectedYear(null);
-    setEvents([]);
-    setLoading(false);
-    setError(null);
-    setLoadingComplete(false);
-  }, []);
-
   useEffect(() => {
-    if (selectedYear && loading) {
+    if (selectedYear) {
+      setLoading(true);
+      setEvents([]);
+      
       const handleEventsReceived = (newEvents: HistoricalEvent[]) => {
         setEvents(prevEvents => {
           // Create a map to store unique events by date
@@ -102,7 +90,6 @@ const Timeline = () => {
           // Process and group new events
           newEvents.forEach(event => {
             const dateKey = `${event.year}-${event.month}-${event.day}`;
-            const formattedDate = formatDate(event.month, event.day, event.year);
             
             if (eventMap.has(dateKey)) {
               // Add event to existing group if it's not already included
@@ -123,11 +110,18 @@ const Timeline = () => {
           });
 
           // Convert map back to array and sort by date
-          return Array.from(eventMap.values()).sort((a, b) => {
+          const sortedEvents = Array.from(eventMap.values()).sort((a, b) => {
             const dateA = new Date(parseInt(a.year), parseInt(a.month) - 1, parseInt(a.day));
             const dateB = new Date(parseInt(b.year), parseInt(b.month) - 1, parseInt(b.day));
             return dateA.getTime() - dateB.getTime();
           });
+
+          // Start animation immediately when we get events
+          if (!animationStarted && sortedEvents.length > 0) {
+            setAnimationStarted(true);
+          }
+
+          return sortedEvents;
         });
       };
 
@@ -142,8 +136,29 @@ const Timeline = () => {
           setLoading(false);
           console.error('Error:', err);
         });
+
+      // Cleanup function
+      return () => {
+        setLoading(false);
+        setEvents([]);
+      };
     }
-  }, [selectedYear, loading]);
+  }, [selectedYear, animationStarted]);
+
+  const handleYearClick = useCallback((year: number) => {
+    setSelectedYear(year);
+    setLoadingComplete(false);
+    setAnimationStarted(false);
+  }, []);
+
+  const handleBackClick = useCallback(() => {
+    setSelectedYear(null);
+    setEvents([]);
+    setLoading(false);
+    setError(null);
+    setLoadingComplete(false);
+    setAnimationStarted(false);
+  }, []);
 
   if (error) {
     return <div className="timeline-error">{error}</div>;
@@ -169,33 +184,29 @@ const Timeline = () => {
 
   return (
     <div className="timeline-container">
-      <button className="timeline-back-button" onClick={handleBackClick}>
-        Back to Years
-      </button>
-      <div className="timeline-year-item selected">
+      <div className="timeline-year-item selected" onClick={handleBackClick}>
         <div className="timeline-year">{selectedYear}</div>
       </div>
-      {loading && !loadingComplete && (
-        <div className="timeline-loading-container">
-          <div className="timeline-loading-content">
-            Loading events from {selectedYear}...
-          </div>
-        </div>
-      )}
       <div className="timeline-events-container">
         {events.map((event, index) => (
           <div 
             key={event.date} 
             className="timeline-item"
             style={{ 
-              marginTop: index === 0 ? 0 : calculateEventSpacing(event, index, events)
-            }}
+              marginTop: index === 0 ? 80 : calculateEventSpacing(event, index, events),
+              '--animation-order': index
+            } as React.CSSProperties}
           >
             <div className="timeline-date">
               {formatDate(event.month, event.day, event.year)}
             </div>
             <div className="timeline-dot"></div>
-            <div className="timeline-content">
+            <div 
+              className="timeline-content"
+              style={{ 
+                '--animation-order': index
+              } as React.CSSProperties}
+            >
               {event.events.map((eventText, eventIndex) => (
                 <div key={eventIndex} className="timeline-description">
                   {eventText}
