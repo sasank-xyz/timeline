@@ -719,17 +719,17 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 240px;
+  height: 260px;
   background: linear-gradient(
     to bottom,
     #111827 0%,
     #111827 60px,
-    rgba(17, 24, 39, 0.95) 90px,
-    rgba(17, 24, 39, 0.9) 120px,
-    rgba(17, 24, 39, 0.8) 150px,
-    rgba(17, 24, 39, 0.6) 180px,
-    rgba(17, 24, 39, 0.3) 210px,
-    rgba(17, 24, 39, 0) 240px
+    rgba(17, 24, 39, 0.95) 180px,
+    rgba(17, 24, 39, 0.9) 190px,
+    rgba(17, 24, 39, 0.8) 210px,
+    rgba(17, 24, 39, 0.6) 230px,
+    rgba(17, 24, 39, 0.3) 250px,
+    rgba(17, 24, 39, 0) 260px
   );
   z-index: 1500;
   pointer-events: none;
@@ -742,5 +742,5 @@ body {
 
 /* Adjust spacing for first item to account for taller mask */
 .timeline-item:first-child {
-  margin-top: 240px;
+  margin-top: 260px;
 } 
