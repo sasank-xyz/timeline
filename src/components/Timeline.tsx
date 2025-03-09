@@ -76,6 +76,7 @@ const Timeline = () => {
     if (selectedYear) {
       setLoading(true);
       setEvents([]);
+      setAnimationStarted(false);
       
       const handleEventsReceived = (newEvents: HistoricalEvent[]) => {
         setEvents(prevEvents => {
@@ -116,9 +117,11 @@ const Timeline = () => {
             return dateA.getTime() - dateB.getTime();
           });
 
-          // Start animation immediately when we get events
+          // Only start animation when we have all events
           if (!animationStarted && sortedEvents.length > 0) {
-            setAnimationStarted(true);
+            setTimeout(() => {
+              setAnimationStarted(true);
+            }, 100);
           }
 
           return sortedEvents;
@@ -141,14 +144,14 @@ const Timeline = () => {
       return () => {
         setLoading(false);
         setEvents([]);
+        setAnimationStarted(false);
       };
     }
-  }, [selectedYear, animationStarted]);
+  }, [selectedYear]);
 
   const handleYearClick = useCallback((year: number) => {
     setSelectedYear(year);
     setLoadingComplete(false);
-    setAnimationStarted(false);
   }, []);
 
   const handleBackClick = useCallback(() => {
