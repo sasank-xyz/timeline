@@ -20,9 +20,9 @@ interface GroupedEvent {
 const Timeline = () => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [events, setEvents] = useState<GroupedEvent[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loadingComplete, setLoadingComplete] = useState(false);
+  const [, setLoadingComplete] = useState(false);
   const [animationStarted, setAnimationStarted] = useState(false);
 
   // Generate years from 1800 to 2024
