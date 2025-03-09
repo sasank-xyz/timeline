@@ -277,8 +277,8 @@
     to bottom,
     transparent 0%,
     transparent 20px,
-    #8b5cf6 20px,
-    #8b5cf6 100%
+    rgba(139, 92, 246, 0.2) 20px,
+    rgba(139, 92, 246, 0.2) 100%
   );
   transform: translateX(-50%);
   z-index: 1;
