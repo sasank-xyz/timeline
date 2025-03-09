@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchHistoricalEvents } from '../services/historicalEvents';
 import './Timeline.css';
 
@@ -24,6 +24,8 @@ const Timeline = () => {
   const [error, setError] = useState<string | null>(null);
   const [, setLoadingComplete] = useState(false);
   const [animationStarted, setAnimationStarted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const hasScrolledRef = useRef(false);
 
   // Generate years from 1800 to 2024
   const years = Array.from({ length: 225 }, (_, i) => 1800 + i);
@@ -72,11 +74,44 @@ const Timeline = () => {
     return Math.max(daysBetween * 15, 80);
   };
 
+  const handleYearClick = (year: number, element: HTMLDivElement) => {
+    const rect = element.getBoundingClientRect();
+    
+    // Prepare the element for animation
+    element.style.position = 'fixed';
+    element.style.top = `${rect.top}px`;
+    element.style.left = '0';
+    element.style.width = '100%';
+    element.style.setProperty('--initial-top', `${rect.top}px`);
+    
+    // Force a reflow and ensure all styles are applied
+    element.offsetHeight;
+    
+    // Start animation sequence
+    requestAnimationFrame(() => {
+      // Step 1: Add initial animation class and start transition
+      element.classList.add('animating');
+      setIsTransitioning(true);
+      
+      requestAnimationFrame(() => {
+        // Step 2: Start the movement to top
+        element.classList.add('animating-to-top');
+        
+        // Step 3: After animation completes, update state
+        setTimeout(() => {
+          setSelectedYear(year);
+          setLoadingComplete(false);
+        }, 1000);
+      });
+    });
+  };
+
   useEffect(() => {
     if (selectedYear) {
       setLoading(true);
       setEvents([]);
       setAnimationStarted(false);
+      hasScrolledRef.current = false;  // Reset scroll flag when year changes
       
       const handleEventsReceived = (newEvents: HistoricalEvent[]) => {
         setEvents(prevEvents => {
@@ -121,6 +156,11 @@ const Timeline = () => {
           if (!animationStarted && sortedEvents.length > 0) {
             setTimeout(() => {
               setAnimationStarted(true);
+              // Only scroll if we haven't scrolled yet
+              if (!hasScrolledRef.current) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                hasScrolledRef.current = true;
+              }
             }, 100);
           }
 
@@ -149,11 +189,6 @@ const Timeline = () => {
     }
   }, [selectedYear]);
 
-  const handleYearClick = useCallback((year: number) => {
-    setSelectedYear(year);
-    setLoadingComplete(false);
-  }, []);
-
   const handleBackClick = useCallback(() => {
     setSelectedYear(null);
     setEvents([]);
@@ -161,6 +196,7 @@ const Timeline = () => {
     setError(null);
     setLoadingComplete(false);
     setAnimationStarted(false);
+    setIsTransitioning(false);
   }, []);
 
   if (error) {
@@ -169,12 +205,12 @@ const Timeline = () => {
 
   if (selectedYear === null) {
     return (
-      <div className="timeline-years">
+      <div className={`timeline-years ${isTransitioning ? 'transitioning' : ''}`}>
         {years.map(year => (
           <div
             key={year}
             className="timeline-year-item"
-            onClick={() => handleYearClick(year)}
+            onClick={(e) => handleYearClick(year, e.currentTarget)}
             data-year={year}
           >
             <div className="timeline-dot"></div>
@@ -187,11 +223,15 @@ const Timeline = () => {
 
   return (
     <div className="timeline-container">
-      <div className="timeline-year-item selected" onClick={handleBackClick}>
+      <div 
+        className="timeline-year-item selected"
+        onClick={handleBackClick}
+        style={{ cursor: 'pointer' }}
+      >
         <div className="timeline-year">{selectedYear}</div>
       </div>
       <div className="timeline-mask"></div>
-      <div className="timeline-events-container">
+      <div className={`timeline-events-container ${animationStarted ? 'visible' : ''}`}>
         {events.map((event, index) => (
           <div 
             key={event.date} 
