@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchHistoricalEvents } from '../services/historicalEvents';
 import './Timeline.css';
 
@@ -25,6 +25,7 @@ const Timeline = () => {
   const [, setLoadingComplete] = useState(false);
   const [animationStarted, setAnimationStarted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const hasScrolledRef = useRef(false);
 
   // Generate years from 1800 to 2024
   const years = Array.from({ length: 225 }, (_, i) => 1800 + i);
@@ -110,6 +111,7 @@ const Timeline = () => {
       setLoading(true);
       setEvents([]);
       setAnimationStarted(false);
+      hasScrolledRef.current = false;  // Reset scroll flag when year changes
       
       const handleEventsReceived = (newEvents: HistoricalEvent[]) => {
         setEvents(prevEvents => {
@@ -154,6 +156,11 @@ const Timeline = () => {
           if (!animationStarted && sortedEvents.length > 0) {
             setTimeout(() => {
               setAnimationStarted(true);
+              // Only scroll if we haven't scrolled yet
+              if (!hasScrolledRef.current) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                hasScrolledRef.current = true;
+              }
             }, 100);
           }
 
